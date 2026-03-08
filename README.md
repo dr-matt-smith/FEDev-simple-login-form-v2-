@@ -465,3 +465,18 @@ Following the same steps above, after you have typed in a name in the login form
 
 This screenshot shows the POST form submitted data after `matt` was submitted in the login form.
 
+##  Warnings about "only captures the initial value of `data`."
+
+You may notice in the terminal some messages like this:
+
+    `This reference only captures the initial value of `data`. Did you mean to reference it inside a closure instead?`
+
+This relates to the way 'state' works with Svelte pages
+- simple JavaScript variables may not be updated when the pages automaticaly behind the scenes
+
+However, we are not going to worry about this, since SvelteKit makes it very easy to add a login/registration user authemntical library for us, that will ensure our website pages will know and can appropriately respond to whether or not a user has successfully logged in.
+
+see the Svelte reference documents:
+- https://svelte.dev/docs/cli/better-auth
+
+(a tutorial for the labs/project is coming soon ....)
