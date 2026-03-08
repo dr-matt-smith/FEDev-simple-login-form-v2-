@@ -2,15 +2,6 @@
 	import favicon from '$lib/assets/favicon.svg';
 
 	let { children } = $props();
-// 	let { children, data } = $props();
-//
-// 	let username = $state(data.username);
-//
-// 	let isLoggedIn = $state(false);
-// 	if(username) {
-// 		isLoggedIn = true;
-// 	}
-
 </script>
 
 <svelte:head>
