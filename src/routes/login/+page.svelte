@@ -1,11 +1,15 @@
 <script>
+    // let { data } = $props();
+    // let username = data.username;
+    //
+    // let isLoggedIn = false;
+    // if(username) {
+    //     isLoggedIn = true;
+    // }
+
     let { data } = $props();
     let username = data.username;
-
-    let isLoggedIn = false;
-    if(username) {
-        isLoggedIn = true;
-    }
+    let isLoggedIn = data.isLoggedIn;
 </script>
 
 <div class="right">
@@ -28,6 +32,10 @@
 <style>
     .right {
         text-align: right;
+    }
+
+    input {
+        background: yellow;
     }
 </style>
 

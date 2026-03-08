@@ -1,13 +1,18 @@
+<!--<script>-->
+<!--    let { data } = $props();-->
+<!--    let username = data.username;-->
+
+<!--    let isLoggedIn = false;-->
+<!--    if(username) {-->
+<!--        isLoggedIn = true;-->
+<!--    }-->
+<!--</script>-->
+
 <script>
     let { data } = $props();
     let username = data.username;
-
-    let isLoggedIn = false;
-    if(username) {
-        isLoggedIn = true;
-    }
+    let isLoggedIn = data.isLoggedIn;
 </script>
-
 
 <div class="right">
     {#if isLoggedIn}
@@ -17,12 +22,10 @@
     {/if}
 </div>
 
-
-<h1>banking application</h1>
+<h1>banking web site</h1>
 <p>
-    the balance of your swiss account is: $ 100,000,000 :-)
+    give us your money - we'll look after it for you :-)
 </p>
-
 
 <style>
 
