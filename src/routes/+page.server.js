@@ -4,6 +4,7 @@ export function load({ cookies }) {
     if(username){
         isLoggedIn = true;
     }
+
     return {
         username,
         isLoggedIn

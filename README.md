@@ -73,9 +73,9 @@ Also, let's add a conditional, right aligned message, stating either how to logi
 ```html
 <div class="right">
     {#if isLoggedIn}
-    You are logged in as: <strong>{username}</strong>
+        You are logged in as: <strong>{username}</strong>
     {:else}
-    please <a href="/login">Log in</a>
+        please <a href="/login">Log in</a>
     {/if}
 </div>
 
@@ -83,6 +83,7 @@ Also, let's add a conditional, right aligned message, stating either how to logi
 <p>
     give us your money - we'll look after it for you :-)
 </p>
+
 <style>
 
     .right {
@@ -91,17 +92,13 @@ Also, let's add a conditional, right aligned message, stating either how to logi
 </style>
 ```
 
-The logic for this page will assume the page's JavaScript server page attempts to pass in a `username` property. So we can interrogate the `$props()` this page receives, and if `username` is undefined, we'll set `isLoggedIn` to false, otherwise we'll set `isLoggedIn` to true:
+The logic for this page will assume the page's JavaScript server page returns `data` in `$props()` that contain `username` and `isLoggedIn` properties. So from the `data` in `$props()` page receives, we can extract the `username` and `isLoggedIn` properties:
 
 ```html
 <script>
     let { data } = $props();
     let username = data.username;
-
-    let isLoggedIn = false;
-    if(username) {
-        isLoggedIn = true;
-    }
+    let isLoggedIn = data.isLoggedIn;
 </script>
 ```
 
@@ -112,18 +109,14 @@ So the full listing for `+page.svelte` is as follows:
 <script>
     let { data } = $props();
     let username = data.username;
-
-    let isLoggedIn = false;
-    if(username) {
-        isLoggedIn = true;
-    }
+    let isLoggedIn = data.isLoggedIn;
 </script>
 
 <div class="right">
     {#if isLoggedIn}
-    You are logged in as: <strong>{username}</strong>
+        You are logged in as: <strong>{username}</strong>
     {:else}
-    please <a href="/login">Log in</a>
+        please <a href="/login">Log in</a>
     {/if}
 </div>
 
@@ -145,20 +138,26 @@ So the full listing for `+page.svelte` is as follows:
 
 We need to do some work in order to send the Svelte home page the username 'props'.
 
-All we need is a `load()` function to attemtp to retreive a stored Cookie `username`:
+All we need is a `load()` function to attempts to retreive a stored Cookie `username`, and sets Boolean variable `isLoggedIn` if such a cookie value is found:
 
 `/routes/+page.server.js`
 
 ```javascript
 export function load({ cookies }) {
     let username = cookies.get('username');
+    let isLoggedIn = false;
+    if(username){
+        isLoggedIn = true;
+    }
+    
     return {
-        username
+        username,
+        isLoggedIn
     };
 }
 ```
 
-Note how we can add `{ cookies }` as a parameter for the `load()` function, and Svelte then gives us access to its `cookies` object.
+NOTE: How we can add `{ cookies }` as a parameter for the `load()` function, and Svelte then gives us access to its `cookies` object.
 
 ##  Banking page Svelte script
 
@@ -173,19 +172,13 @@ If they are logged-in they see the balance of their bank account:
 So let's create our bank page Svelte script: `/routes/bank/+page.svelte`
 
 The script part of our bank page Svelte code is identical to that of the home page:
-- we put props into variale `data`
-- we set `username` to `data.username`
-- we set the true/false value of `isLoggedIn` according to whether `username` has a value or is undefined:
+-  from the `data` in `$props()` page receives, we extract the `username` and `isLoggedIn` properties:
 
 ```html
 <script>
     let { data } = $props();
     let username = data.username;
-
-    let isLoggedIn = false;
-    if(username) {
-        isLoggedIn = true;
-    }
+    let isLoggedIn = data.isLoggedIn;
 </script>
 ```
 
@@ -196,7 +189,7 @@ The HTML parts of our bank page uses a Svelte IF-statement, to display the balan
 
 {#if isLoggedIn}
     <p>
-    the balance of your swiss account is: $ 100,000,000 :-)
+    the balance of your Swiss account is: $ 100,000,000 :-)
     </p>
 {:else}
     <div class="error">
@@ -228,18 +221,14 @@ So the full listing of the Svelte script for our banking page is as follows.
 <script>
     let { data } = $props();
     let username = data.username;
-
-    let isLoggedIn = false;
-    if(data && data.username) {
-        isLoggedIn = true;
-    }
+    let isLoggedIn = data.isLoggedIn;
 </script>
 
 <h1>banking application</h1>
 
 {#if isLoggedIn}
 <p>
-    the balance of your swiss account is: $ 100,000,000 :-)
+    the balance of your Swiss account is: $ 100,000,000 :-)
 </p>
 {:else}
 <div class="error">
@@ -258,3 +247,221 @@ So the full listing of the Svelte script for our banking page is as follows.
     }
 </style>
 ```
+
+## Bank page server JavaScript
+
+The JavaScript server for definding the `load()` function for our bank page is identical to that for our home page:
+
+`/routes/bank/+page.server.js`
+
+```javascript
+export function load({ cookies }) {
+    let username = cookies.get('username');
+    let isLoggedIn = false;
+    if(username){
+        isLoggedIn = true;
+    }
+    
+    return {
+        username,
+        isLoggedIn
+    };
+}
+```
+
+
+##  Login page Svelte script
+
+Our login route `/login` offers a login form asking for a username:
+
+![screenshot login page](/screenshots/2_login_page.png)
+
+The JavaScript element and indciation of whenter user is logged in are identical for both our login page and home page:
+
+```html
+<script>
+    let { data } = $props();
+    let username = data.username;
+    let isLoggedIn = data.isLoggedIn;
+</script>
+
+<div class="right">
+    {#if isLoggedIn}
+    You are logged in as: <strong>{username}</strong>
+    {:else}
+    please <a href="/login">Log in</a>
+    {/if}
+</div>
+```
+
+We then have the HTML code to present a simple login form to the user:
+- Note the `POST` method
+- Note there is no `action`, so this form will submit and be processed by the page's JavaScript server script (`/routes/login/+page.server.js`) for the `default` form action
+- Note we add the `required` attributed to the text input, so we don't have to worry about empty usernames being submitted
+
+```html
+<form method="POST">
+    <label>
+        username
+        <input name="username" required>
+    </label>
+    <button>Login</button>
+</form>
+```
+
+And 2 CSS styles, one for right aligning text, and the other to color the text input box with a yellow background:
+
+```html
+<style>
+    .right {
+        text-align: right;
+    }
+
+    input {
+        background: yellow;
+    }
+</style>
+```
+
+So the full listing for our login Svelte page is as follows:
+
+`/routes/login/+page.svelte`
+
+```html
+<script>
+    let { data } = $props();
+    let username = data.username;
+    let isLoggedIn = data.isLoggedIn;
+</script>
+
+<div class="right">
+    {#if isLoggedIn}
+    You are logged in as: <strong>{username}</strong>
+    {:else}
+    please <a href="/login">Log in</a>
+    {/if}
+</div>
+
+<form method="POST">
+    <label>
+        username
+        <input name="username" required>
+    </label>
+    <button>Login</button>
+</form>
+
+<style>
+    .right {
+        text-align: right;
+    }
+
+    input {
+        background: yellow;
+    }
+</style>
+```
+
+
+##  Login page JavaScript server script
+
+We need 2 functions for our login page's JavaScript server script (`/routes/login/+page.server.js`):
+- `load()` to provide `username` and `isLoggedIn` props like the other pages
+- `actions()` to process the `default` form submission action
+
+So the `load()` function is just the same as for the home and bank page server scripts:
+
+```javascript
+export function load({ cookies }) {
+    let username = cookies.get('username');
+    let isLoggedIn = false;
+    if(username){
+        isLoggedIn = true;
+    }
+    return {
+        username,
+        isLoggedIn
+    };
+}
+```
+
+So the `actions()` function defines one action, `default` to be an asynchronous function that:
+1. in its declaration gets access to the `request` and `cookies` Svelte objects
+
+    `default: async ({ request, cookies })`
+
+2. gets the submitted POST form data
+
+    `const data = await request.formData()`
+
+1. extracts the `username` from the submitted POST form data
+     
+   `const username = data.get('username')`
+
+1. store the `username` tex into a cookie named `username`
+
+   `const username = data.get('username')`
+
+
+
+```javascript
+export const actions =  {
+    default: async ({ request, cookies }) => {
+        const data = await request.formData();
+        const username = data.get('username');
+
+        cookies.set('username', username, { path: '/' });
+    }
+};
+```
+
+##  Logout page JavaScript server script
+
+Our logout page server script (`/routes/logout/+page.server.js`) deletes the cookie named `username`:
+
+`/routes/logout/+page.server.js`
+
+```javascript
+export function load({ cookies }) {
+    cookies.delete('username', {path: '/'});
+}
+```
+
+
+##  Logout page Svelte script
+
+![screenshot logout page](/screenshots/3_logout.png)
+
+The Svelte page for out logout route is a simple HTML paragraph:
+
+`/routes/logout/+page.svelte`
+```html
+<p>
+    you are now successfully logged out
+</p>
+```
+
+##  Viewing the cookie values from your web browser developer tools
+
+![screenshot bank page show cookies when no cookie](/screenshots/10_bank_no_username_cookie.png)
+
+Since Svelte is a single-page application framework, to see an updated view of cookies you'll need to force a web browser page refresh:
+- first display your browser's **Developer Tools**
+  - I use DuckDuckGo and find them on menu: **View | Developer | Open Developer Tools**
+- then select the **Network** tab
+- then hold the `SHIFT` key down and clicking on the `bank` link for force a page refresh
+- click on the first item in the list of resources loaded (`bank` in the **Name** column on the left)
+- then display **Cookies**
+
+If you then login with a username, and follow the same sames, you should see the bank balance message, and the existance of a `username` cookie stored in the web browser:
+
+![screenshot bank page show cookies](/screenshots/11_bank_username_cookie.png)
+
+
+##  Viewing the POST data being submitted by the login form
+
+![screenshot login page submission POST data](/screenshots/12_login_post_data.png)
+
+Following the same steps above, after you have typed in a name in the login form, ensure you are displaying the Developer Tools, and hold down SHIFT when you click the **login** button.
+
+This screenshot shows the POST form submitted data after `matt` was submitted in the login form.
+

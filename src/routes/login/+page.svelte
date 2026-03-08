@@ -1,12 +1,4 @@
 <script>
-    // let { data } = $props();
-    // let username = data.username;
-    //
-    // let isLoggedIn = false;
-    // if(username) {
-    //     isLoggedIn = true;
-    // }
-
     let { data } = $props();
     let username = data.username;
     let isLoggedIn = data.isLoggedIn;
@@ -20,11 +12,10 @@
     {/if}
 </div>
 
-
 <form method="POST">
     <label>
         username
-        <input name="username">
+        <input name="username" required>
     </label>
     <button>Login</button>
 </form>

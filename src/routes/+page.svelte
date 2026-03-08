@@ -1,13 +1,3 @@
-<!--<script>-->
-<!--    let { data } = $props();-->
-<!--    let username = data.username;-->
-
-<!--    let isLoggedIn = false;-->
-<!--    if(username) {-->
-<!--        isLoggedIn = true;-->
-<!--    }-->
-<!--</script>-->
-
 <script>
     let { data } = $props();
     let username = data.username;
